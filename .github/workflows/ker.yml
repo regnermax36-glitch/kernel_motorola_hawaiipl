@@ -19,6 +19,8 @@ jobs:
           aosp-clang: true
           android-version: 12
           aosp-clang-version: r383902
-          - name: upload out
-          run: zip kernel_moto*/kernel/kernel/out && curl bashupload.com -T out.zip
 
+      - name: upload out
+        run: |
+          zip -r out.zip kernel_moto*/kernel/kernel/out
+          curl -F "file=@out.zip" https://bashupload.com
