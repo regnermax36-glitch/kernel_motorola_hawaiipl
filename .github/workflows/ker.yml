@@ -11,8 +11,8 @@ jobs:
       - name: Build
         uses: dabao1955/kernel_build_action@main
         with:
-          kernel-url: https://github.com/motorola-MT6765-devs/kernel_motorola_hawaiipl/
-          kernel-branch: android-12.0
+          kernel-url: https://github.com/regnermax36-glitch/newkernel.git
+          kernel-branch: main
           config: hawaiipl-perd_defconfig
           arch: arm64
           aosp-gcc: true
