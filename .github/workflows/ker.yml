@@ -21,3 +21,4 @@ jobs:
           aosp-clang-version: r383902
           - name: upload out
           run: zip kernel_moto*/kernel/kernel/out && curl bashupload.com -T out.zip
+
