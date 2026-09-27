@@ -1,109 +1,88 @@
-# MaxRegnerOS v1.0-ULTRA (Cyberhawaii)
-### Next-Gen ARM64 Linux OS for Motorola Moto G22 (`hawaiipl`)
-**SoC:** MediaTek MT6765 / Helio G37 | **Arch:** ARM64 (aarch64) | **Flash Format:** UserData Partition Direct Boot
+# MaxRegnerOS v1.0-ULTRA Mobile Linux
+### Next-Gen ARM64 Mobile Linux OS for Motorola Moto G22 (`hawaiipl`)
+**SoC:** MediaTek MT6765 / Helio G37 | **Arch:** ARM64 (aarch64) | **Kernel Mode:** Stock Moto G22 Kernel | **Flash Format:** UserData Partition Direct Boot
 
 ---
 
 ## 🚀 Overview
 
-**MaxRegnerOS** is a specialized, ultra-performance ARM64 Linux OS built for the **Motorola Moto G22** (`hawaiipl`). It brings a futuristic cyber-interface, low-latency kernel configuration, and a lightweight standalone userspace architecture designed to boot cleanly from the `/userdata` partition.
+**MaxRegnerOS Mobile Linux** is an ARM64 Linux OS distribution layer designed for the **Motorola Moto G22** (`hawaiipl`).
+It runs **100% on the stock Motorola Moto G22 kernel** without requiring any kernel code modifications, and boots directly from the `/userdata` partition.
 
 ---
 
-## 🔥 Key Features
+## 📦 Direct Image Download Link (Uploaded to temp.sh)
 
-1. **Direct UserData Flashability (`maxregneros_userdata.img`):**
-   - Flashable directly to the phone's `/userdata` partition via `fastboot flash userdata maxregneros_userdata.img`.
-   - Leaves standard system/vendor partitions intact while running a complete, isolated Linux OS.
+- **Temp.sh Direct Download Link:** [https://temp.sh/WGdQx/maxregneros_userdata.img.tar.gz](https://temp.sh/WGdQx/maxregneros_userdata.img.tar.gz)
+- **Build Tooling:** `./tools/build_maxregneros_img.sh` generates a populated `maxregneros_userdata.img` ext4 filesystem using `mkfs.ext4 -d`.
 
-2. **Dedicated Kernel Configuration (`maxregneros_defconfig`):**
-   - Custom Linux 4.19 kernel defconfig based on `hawaiipl-perd_defconfig`.
-   - Hostname set to `maxregneros` and LOCALVERSION tagged as `-MaxRegnerOS`.
-   - Pre-configured scheduler interop for MediaTek MT6765 8x Cortex-A53 cores.
+---
 
-3. **Interactive MaxRegnerOS Cyber Shell (`maxregneros_shell.sh`):**
-   - Cyberpunk terminal interface with color customization (`theme`).
-   - Integrated hardware monitoring: `sysinfo`, `devstat`, `thermal`.
-   - Animated stream utility: `matrix`.
+## 🔥 Key Features & Capabilities
 
-4. **Hardware Controller Suite (`maxregneros_control.sh`):**
-   - **CyberBoost Mode (`boost`):** Forces CPU governor to maximum performance across all 8 cores and tunes VM swappiness for heavy workloads.
+1. **Zero-Kernel Modification Direct Boot (`maxregneros_userdata.img`):**
+   - Flashable directly to `/userdata` via `fastboot flash userdata maxregneros_userdata.img`.
+   - Boots directly on the stock Motorola Moto G22 Linux 4.19 kernel (`hawaiipl-perd_defconfig`).
+
+2. **Native C Init Orchestrator (`init.c`):**
+   - Cross-compiled ARM64 freestanding C init source (`maxregneros/src/init.c`) that mounts essential pseudo-filesystems (`/proc`, `/sys`, `/dev`), sets environment paths, and launches the shell.
+
+3. **MaxGUI Mobile Touch Desktop Framework (`maxgui`):**
+   - Touch-screen graphical window/desktop environment displaying real-time memory usage, battery metrics, thermal zone stats, and fast application shortcuts.
+
+4. **MaxPack Mobile Package Manager (`maxpack`):**
+   - Package manager (`maxpack install`, `maxpack remove`, `maxpack list`, `maxpack update`) for fetching and unpacking ARM64 Linux package archives.
+
+5. **MaxRegnerOS Cyber Mobile Shell (`maxregneros_shell.sh`):**
+   - Interactive Cyberpunk terminal shell with live theme toggling (`theme`), hardware diagnostics (`devstat`), and thermal monitoring (`thermal`).
+
+6. **Hardware Controller & Governor Suite (`maxregneros_control.sh`):**
+   - **CyberBoost Mode (`boost`):** Locks all 8 ARM Cortex-A53 CPU cores to maximum clock speed and tunes VM memory parameters for heavy multitasking.
    - **Eco Mode (`eco`):** Powersave governor activation for extended battery runtime.
-   - **Schedutil Mode (`balanced`):** Dynamic load-balancing frequency scaling.
-
-5. **Standalone Boot Orchestrator (`init.sh`):**
-   - Mounts `/proc`, `/sys`, `/dev`, `/dev/pts`, `/tmp`.
-   - Configures hostname and environment paths.
-   - Launches `maxregneros_shell.sh` automatically upon boot.
+   - **Balanced Mode (`balanced`):** Schedutil governor activation.
 
 ---
 
-## 🛠️ Building Kernel & UserData Image
+## ⚡ Flashing & Installation Guide
 
-### 1. Build the Kernel for Motorola Moto G22 (`hawaiipl`)
+1. **Build UserData Image (Optional - Prebuilt Available via temp.sh link):**
+   ```bash
+   ./tools/build_maxregneros_img.sh
+   ```
 
-```bash
-# Set cross-compiler environment
-export ARCH=arm64
-export CROSS_COMPILE=aarch64-linux-android-
-
-# Load MaxRegnerOS kernel configuration
-make maxregneros_defconfig
-
-# Build kernel Image.gz-dtb / Image
-make -j$(nproc)
-```
-
-### 2. Build the UserData Image (`maxregneros_userdata.img`)
-
-```bash
-# Execute MaxRegnerOS image builder tool
-./tools/build_maxregneros_img.sh
-```
-
-This generates `maxregneros_userdata.img` (64MB flashable ext4 image).
-
----
-
-## ⚡ Installation & Flashing Instructions
-
-1. **Reboot Motorola Moto G22 into Fastboot Mode:**
+2. **Reboot Motorola Moto G22 into Fastboot Mode:**
    ```bash
    adb reboot bootloader
    ```
 
-2. **Flash MaxRegnerOS Kernel to Boot Partition:**
-   ```bash
-   fastboot flash boot arch/arm64/boot/Image.gz-dtb
-   ```
-
-3. **Flash MaxRegnerOS UserData Image to UserData Partition:**
+3. **Flash MaxRegnerOS UserData Image:**
    ```bash
    fastboot flash userdata maxregneros_userdata.img
    ```
 
-4. **Boot into MaxRegnerOS:**
+4. **Reboot into MaxRegnerOS Mobile Linux:**
    ```bash
    fastboot reboot
    ```
 
 ---
 
-## 💻 MaxRegnerOS CLI Reference
+## 💻 CLI & Mobile Tools Reference
 
 | Command | Description |
 | :--- | :--- |
+| `gui` / `maxgui` | Launches MaxGUI Touch Screen Mobile Desktop UI Framework |
+| `maxpack` | Launches MaxPack Mobile Package Manager (`install`, `remove`, `list`, `update`) |
 | `sysinfo` | Displays OS build, CPU cores, RAM, and architecture breakdown |
 | `devstat` | Displays Motorola Moto G22 hardware diagnostics & CPU governors |
 | `thermal` | Reads MediaTek MT6765 SoC thermal sensors |
 | `boost` | Activates CyberBoost performance governor on all 8 Cortex-A53 cores |
 | `eco` | Activates Eco powersave governor |
 | `matrix` | Launches Cyberpunk digital stream |
-| `features` | Lists unique MaxRegnerOS architectural features |
-| `theme` | Changes UI color palette |
-| `clear` | Clears terminal screen and re-renders MaxRegnerOS ASCII banner |
+| `features` | Lists unique MaxRegnerOS Mobile features |
+| `theme` | Changes terminal UI color palette |
 | `exit` | Exits the interactive shell session |
 
 ---
 
-*MaxRegnerOS - Next-Generation ARM64 Linux OS for Motorola Moto G22 (`hawaiipl`)*
+*MaxRegnerOS Mobile Linux - Motorola Moto G22 (`hawaiipl`)*
