@@ -1,42 +1,40 @@
-# MaxRegnerOS v1.0-ULTRA Merged Mobile Linux & Android
+# MaxRegnerOS v1.0-ULTRA Stock Android 12 Mobile Linux
 ### Next-Gen Merged ARM64 OS for Motorola Moto G22 (`hawaiipl`)
-**SoC:** MediaTek MT6765 / Helio G37 | **Arch:** ARM64 (aarch64) | **Kernel Mode:** Stock Moto G22 Kernel | **Flash Format:** UserData Partition Direct Boot (`.img`)
+**SoC:** MediaTek MT6765 / Helio G37 | **Arch:** ARM64 (aarch64) | **Firmware Mode:** Stock Android 12 Firmware & Stock boot.img | **Flash Format:** UserData Partition Direct Boot (`.img`)
 
 ---
 
 ## 🚀 Overview
 
-**MaxRegnerOS Merged Mobile Linux** is a unified ARM64 (`aarch64`) operating system layer for the **Motorola Moto G22** (`hawaiipl`).
-It merges standard Linux filesystem paths (`/etc`, `/bin`, `/lib64`, `/usr`) with Android system paths (`/system`, `/vendor`, `/apex`, `/linkerconfig`, `/data`), running **100% on the stock Motorola Moto G22 kernel** without kernel code modifications, booting directly from the `/userdata` partition as a raw `.img` filesystem.
+**MaxRegnerOS Mobile Linux** is a full genuine ARM64 (`aarch64`) operating system layer for the **Motorola Moto G22** (`hawaiipl`).
+It runs **100% natively on Stock Android 12 Firmware and Stock boot.img** without kernel or boot partition modifications, booting directly from the `/userdata` partition as a raw `.img` ext4 filesystem.
 
 ---
 
 ## 📦 Direct `.img` File Download Link (Uploaded to temp.sh)
 
-- **Raw UserData `.img` Direct Download Link:** [https://temp.sh/bUgdE/maxregneros_userdata.img](https://temp.sh/bUgdE/maxregneros_userdata.img)
+- **Raw UserData `.img` Direct Download Link:** [https://temp.sh/wKVsh/maxregneros_userdata.img](https://temp.sh/wKVsh/maxregneros_userdata.img)
 - **Build Tooling:** `./tools/build_maxregneros_img.sh` generates a populated `maxregneros_userdata.img` ext4 raw image containing the full merged Linux + Android ARM64 rootfs using `mkfs.ext4 -d`.
-- **Ramdisk Boot Patcher:** `./tools/patch_boot_img.sh` patches stock `boot.img` ramdisk to mount `/userdata` and launch MaxRegnerOS cleanly.
 
 ---
 
 ## 🔥 Key Features & Capabilities
 
-1. **Ramdisk Boot Patcher (`tools/patch_boot_img.sh`):**
-   - Modifies stock `boot.img` ramdisk to inject `init.maxregneros.rc` and auto-start `/userdata/init.sh` at post-fs-data stage.
+1. **Stock Android 12 & Stock Boot Compatibility:**
+   - Runs directly on Stock Moto G22 Android 12 Firmware without requiring custom kernel compilation or boot partition flashing.
 
-2. **Raw UserData Partition Image (`maxregneros_userdata.img`):**
+2. **Native Launcher (`start.sh`):**
+   - Native launcher script (`/maxregneros/start.sh`) that mounts Linux pseudo-filesystems (`/proc`, `/sys`, `/dev`), sets environment paths, and initializes the environment on stock Android 12.
+
+3. **Raw UserData Partition Image (`maxregneros_userdata.img`):**
    - Direct raw `.img` file (128MB populated ext4 filesystem) ready to flash via `fastboot flash userdata maxregneros_userdata.img`.
-   - Boots directly on the stock Motorola Moto G22 Linux 4.19 kernel (`hawaiipl-perd_defconfig`).
 
-3. **Merged Linux & Android ARM64 RootFS:**
+4. **Merged Linux & Android ARM64 RootFS:**
    - Full Alpine Linux v3.19 ARM64 userland (`/bin/busybox`, `/lib/ld-musl-aarch64.so.1`) integrated with Android system library paths (`/system/lib64`, `/vendor/lib64`) and socket interfaces (`/dev/socket`).
 
-4. **Android Property & Service Bridge (`maxprop` & `maxsvc`):**
+5. **Android Property & Service Bridge (`maxprop` & `maxsvc`):**
    - `maxprop` utility for querying/setting Android system properties (`ro.product.model`, `ro.product.device`, `ro.board.platform`).
    - `maxsvc` utility for listing and querying Android Binder / HAL services (`servicemanager`, `hwservicemanager`, `surfaceflinger`).
-
-5. **Native C Init Orchestrator (`init.c`):**
-   - Cross-compiled ARM64 freestanding C init source (`maxregneros/src/init.c`) that mounts essential pseudo-filesystems (`/proc`, `/sys`, `/dev`), sets environment paths, and launches the shell.
 
 6. **MaxGUI Mobile Touch Desktop Framework (`maxgui`):**
    - Touch-screen graphical window/desktop environment displaying real-time memory usage, battery metrics, thermal zone stats, and fast application shortcuts.
@@ -55,28 +53,27 @@ It merges standard Linux filesystem paths (`/etc`, `/bin`, `/lib64`, `/usr`) wit
 
 1. **Download Raw `.img` File:**
    ```bash
-   curl -L "https://temp.sh/bUgdE/maxregneros_userdata.img" -o maxregneros_userdata.img
+   curl -L "https://temp.sh/wKVsh/maxregneros_userdata.img" -o maxregneros_userdata.img
    ```
 
-2. **Patch Stock Boot Image:**
-   ```bash
-   ./tools/patch_boot_img.sh stock_boot.img patched_boot.img
-   ```
-
-3. **Reboot Motorola Moto G22 into Fastboot Mode:**
+2. **Reboot Motorola Moto G22 into Fastboot Mode:**
    ```bash
    adb reboot bootloader
    ```
 
-4. **Flash Patched Boot and UserData Images:**
+3. **Flash Raw MaxRegnerOS UserData Image File:**
    ```bash
-   fastboot flash boot patched_boot.img
    fastboot flash userdata maxregneros_userdata.img
    ```
 
-5. **Reboot into MaxRegnerOS Merged Mobile Linux:**
+4. **Reboot into Stock Android 12 & Start MaxRegnerOS Environment:**
    ```bash
    fastboot reboot
+   ```
+
+5. **Start MaxRegnerOS Session:**
+   ```bash
+   adb shell /userdata/start.sh
    ```
 
 ---
@@ -85,6 +82,7 @@ It merges standard Linux filesystem paths (`/etc`, `/bin`, `/lib64`, `/usr`) wit
 
 | Command | Description |
 | :--- | :--- |
+| `start.sh` | Stock Android 12 launcher script |
 | `maxprop` | Queries/sets Android & Linux system properties |
 | `maxsvc` | Lists and checks status of Binder services & daemons |
 | `gui` / `maxgui` | Launches MaxGUI Touch Screen Mobile Desktop UI Framework |
@@ -101,4 +99,4 @@ It merges standard Linux filesystem paths (`/etc`, `/bin`, `/lib64`, `/usr`) wit
 
 ---
 
-*MaxRegnerOS Merged Mobile Linux - Motorola Moto G22 (`hawaiipl`)*
+*MaxRegnerOS Mobile Linux - Motorola Moto G22 (`hawaiipl`)*

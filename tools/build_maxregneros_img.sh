@@ -2,6 +2,7 @@
 # MaxRegnerOS Mobile UserData Image Packager
 # Builds a flashable maxregneros_userdata.img ext4 image containing a merged Linux + Android ARM64 rootfs
 # Target: Motorola Moto G22 (hawaiipl - MediaTek MT6765 / Helio G37 ARM64)
+# Compatible with Stock Android 12 Firmware & Stock boot.img
 
 set -e
 
@@ -12,12 +13,12 @@ ALPINE_TAR="/tmp/alpine-aarch64.tar.gz"
 ALPINE_URL="https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/aarch64/alpine-minirootfs-3.19.1-aarch64.tar.gz"
 
 echo "=========================================================="
-echo "   Building MaxRegnerOS Merged Linux + Android Image"
+echo "   Building MaxRegnerOS Stock Android 12 UserData Image"
 echo "=========================================================="
 echo "Target Device: Motorola Moto G22 (hawaiipl)"
 echo "Target SoC:    MediaTek MT6765 / Helio G37 (ARM64)"
 echo "Output Image:  ${OUTPUT_IMG}"
-echo "Kernel Mode:   Stock Moto G22 Kernel (Direct UserData Boot)"
+echo "Firmware Mode: Stock Android 12 | Stock boot.img"
 echo "=========================================================="
 
 rm -rf "$BUILD_DIR" "$OUTPUT_IMG" "${OUTPUT_IMG}.tar.gz"
@@ -45,8 +46,10 @@ mkdir -p "$BUILD_DIR/linkerconfig"
 mkdir -p "$BUILD_DIR/data"
 
 # Step 3: Install MaxRegnerOS Core Components & Hybrid Utilities
+cp maxregneros/start.sh "$BUILD_DIR/start.sh"
 cp maxregneros/init.sh "$BUILD_DIR/init"
 cp maxregneros/init.sh "$BUILD_DIR/maxregneros/init.sh"
+cp maxregneros/start.sh "$BUILD_DIR/maxregneros/start.sh"
 cp maxregneros/maxregneros_shell.sh "$BUILD_DIR/maxregneros/maxregneros_shell.sh"
 cp maxregneros/maxregneros_control.sh "$BUILD_DIR/maxregneros/maxregneros_control.sh"
 cp maxregneros/bin/maxpack "$BUILD_DIR/maxregneros/bin/maxpack"
@@ -62,14 +65,14 @@ ln -sf /maxregneros/bin/maxgui "$BUILD_DIR/usr/bin/gui"
 ln -sf /maxregneros/bin/maxprop.sh "$BUILD_DIR/usr/bin/maxprop"
 ln -sf /maxregneros/bin/maxsvc.sh "$BUILD_DIR/usr/bin/maxsvc"
 
-chmod +x "$BUILD_DIR/init" "$BUILD_DIR/maxregneros/"*.sh "$BUILD_DIR/maxregneros/bin/"*
+chmod +x "$BUILD_DIR/init" "$BUILD_DIR/start.sh" "$BUILD_DIR/maxregneros/"*.sh "$BUILD_DIR/maxregneros/bin/"*
 
 # Step 4: Configure OS Release & Hostname
 cat << 'EOF' > "$BUILD_DIR/etc/os-release"
-NAME="MaxRegnerOS Merged Mobile Linux"
+NAME="MaxRegnerOS Stock12 Mobile Linux"
 VERSION="1.0-ULTRA Cyberhawaii"
 ID=maxregneros
-PRETTY_NAME="MaxRegnerOS Merged Linux + Android 1.0-ULTRA (hawaiipl ARM64)"
+PRETTY_NAME="MaxRegnerOS Stock Android 12 Linux 1.0-ULTRA (hawaiipl ARM64)"
 BUILD_ID="20250927"
 HOME_URL="https://github.com/maxregneros"
 EOF
@@ -91,7 +94,7 @@ echo "[MaxRegnerOS Builder] Archiving merged rootfs structure into compressed ta
 tar -czf "${OUTPUT_IMG}.tar.gz" -C "$BUILD_DIR" .
 
 echo "=========================================================="
-echo "    SUCCESS: Real Merged ARM64 MaxRegnerOS Image Built!"
+echo "    SUCCESS: Stock Android 12 MaxRegnerOS Image Built!"
 echo "    Image File: ${OUTPUT_IMG}"
 echo "    Archive:    ${OUTPUT_IMG}.tar.gz"
 echo "    Flashing Command:"
