@@ -1,35 +1,35 @@
 # MaxRegnerOS v1.0-ULTRA Merged Mobile Linux & Android
 ### Next-Gen Merged ARM64 OS for Motorola Moto G22 (`hawaiipl`)
-**SoC:** MediaTek MT6765 / Helio G37 | **Arch:** ARM64 (aarch64) | **Kernel Mode:** Stock Moto G22 Kernel | **Flash Format:** UserData Partition Direct Boot
+**SoC:** MediaTek MT6765 / Helio G37 | **Arch:** ARM64 (aarch64) | **Kernel Mode:** Stock Moto G22 Kernel | **Flash Format:** UserData Partition Direct Boot (`.img`)
 
 ---
 
 ## 🚀 Overview
 
 **MaxRegnerOS Merged Mobile Linux** is a unified ARM64 (`aarch64`) operating system layer for the **Motorola Moto G22** (`hawaiipl`).
-It merges standard Linux filesystem paths (`/etc`, `/bin`, `/lib64`, `/usr`) with Android system paths (`/system`, `/vendor`, `/apex`, `/linkerconfig`, `/data`), running **100% on the stock Motorola Moto G22 kernel** without kernel code modifications, booting directly from the `/userdata` partition.
+It merges standard Linux filesystem paths (`/etc`, `/bin`, `/lib64`, `/usr`) with Android system paths (`/system`, `/vendor`, `/apex`, `/linkerconfig`, `/data`), running **100% on the stock Motorola Moto G22 kernel** without kernel code modifications, booting directly from the `/userdata` partition as a raw `.img` filesystem.
 
 ---
 
-## 📦 Direct Image Download Link (Uploaded to temp.sh)
+## 📦 Direct `.img` File Download Link (Uploaded to temp.sh)
 
-- **Temp.sh Direct Download Link:** [https://temp.sh/hhiSc/maxregneros_userdata.img.tar.gz](https://temp.sh/hhiSc/maxregneros_userdata.img.tar.gz)
-- **Build Tooling:** `./tools/build_maxregneros_img.sh` generates a populated `maxregneros_userdata.img` ext4 filesystem containing the full merged Linux + Android ARM64 rootfs using `mkfs.ext4 -d`.
+- **Raw UserData `.img` Direct Download Link:** [https://temp.sh/IkWpU/maxregneros_userdata.img](https://temp.sh/IkWpU/maxregneros_userdata.img)
+- **Build Tooling:** `./tools/build_maxregneros_img.sh` generates a populated `maxregneros_userdata.img` ext4 raw image containing the full merged Linux + Android ARM64 rootfs using `mkfs.ext4 -d`.
 
 ---
 
 ## 🔥 Key Features & Capabilities
 
-1. **Merged Linux & Android ARM64 RootFS:**
+1. **Raw UserData Partition Image (`maxregneros_userdata.img`):**
+   - Direct raw `.img` file (128MB populated ext4 filesystem) ready to flash via `fastboot flash userdata maxregneros_userdata.img`.
+   - Boots directly on the stock Motorola Moto G22 Linux 4.19 kernel (`hawaiipl-perd_defconfig`).
+
+2. **Merged Linux & Android ARM64 RootFS:**
    - Full Alpine Linux v3.19 ARM64 userland (`/bin/busybox`, `/lib/ld-musl-aarch64.so.1`) integrated with Android system library paths (`/system/lib64`, `/vendor/lib64`) and socket interfaces (`/dev/socket`).
 
-2. **Android Property & Service Bridge (`maxprop` & `maxsvc`):**
+3. **Android Property & Service Bridge (`maxprop` & `maxsvc`):**
    - `maxprop` utility for querying/setting Android system properties (`ro.product.model`, `ro.product.device`, `ro.board.platform`).
    - `maxsvc` utility for listing and querying Android Binder / HAL services (`servicemanager`, `hwservicemanager`, `surfaceflinger`).
-
-3. **Zero-Kernel Modification Direct Boot (`maxregneros_userdata.img`):**
-   - Flashable directly to `/userdata` via `fastboot flash userdata maxregneros_userdata.img`.
-   - Boots directly on the stock Motorola Moto G22 Linux 4.19 kernel (`hawaiipl-perd_defconfig`).
 
 4. **Native C Init Orchestrator (`init.c`):**
    - Cross-compiled ARM64 freestanding C init source (`maxregneros/src/init.c`) that mounts essential pseudo-filesystems (`/proc`, `/sys`, `/dev`), sets environment paths, and launches the shell.
@@ -49,9 +49,9 @@ It merges standard Linux filesystem paths (`/etc`, `/bin`, `/lib64`, `/usr`) wit
 
 ## ⚡ Flashing & Installation Guide
 
-1. **Build UserData Image (Optional - Prebuilt Available via temp.sh link):**
+1. **Download Raw `.img` File:**
    ```bash
-   ./tools/build_maxregneros_img.sh
+   curl -L "https://temp.sh/IkWpU/maxregneros_userdata.img" -o maxregneros_userdata.img
    ```
 
 2. **Reboot Motorola Moto G22 into Fastboot Mode:**
@@ -59,7 +59,7 @@ It merges standard Linux filesystem paths (`/etc`, `/bin`, `/lib64`, `/usr`) wit
    adb reboot bootloader
    ```
 
-3. **Flash MaxRegnerOS UserData Image:**
+3. **Flash Raw MaxRegnerOS UserData Image File:**
    ```bash
    fastboot flash userdata maxregneros_userdata.img
    ```
