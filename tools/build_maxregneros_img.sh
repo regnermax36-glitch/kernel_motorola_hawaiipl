@@ -1,6 +1,6 @@
 #!/bin/sh
 # MaxRegnerOS Mobile UserData Image Packager
-# Builds a flashable maxregneros_userdata.img ext4 image containing a real ARM64 Linux rootfs
+# Builds a flashable maxregneros_userdata.img ext4 image containing a merged Linux + Android ARM64 rootfs
 # Target: Motorola Moto G22 (hawaiipl - MediaTek MT6765 / Helio G37 ARM64)
 
 set -e
@@ -12,7 +12,7 @@ ALPINE_TAR="/tmp/alpine-aarch64.tar.gz"
 ALPINE_URL="https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/aarch64/alpine-minirootfs-3.19.1-aarch64.tar.gz"
 
 echo "=========================================================="
-echo "   Building MaxRegnerOS Mobile UserData Image (ARM64)"
+echo "   Building MaxRegnerOS Merged Linux + Android Image"
 echo "=========================================================="
 echo "Target Device: Motorola Moto G22 (hawaiipl)"
 echo "Target SoC:    MediaTek MT6765 / Helio G37 (ARM64)"
@@ -32,34 +32,44 @@ fi
 echo "[MaxRegnerOS Builder] Unpacking ARM64 Linux rootfs structure..."
 tar -xzf "$ALPINE_TAR" -C "$BUILD_DIR"
 
-# Step 2: Create MaxRegnerOS Directories
+# Step 2: Create Merged Android & Linux Directory Paths
 mkdir -p "$BUILD_DIR/maxregneros/bin"
 mkdir -p "$BUILD_DIR/maxregneros/src"
 mkdir -p "$BUILD_DIR/usr/bin"
 mkdir -p "$BUILD_DIR/system/bin"
+mkdir -p "$BUILD_DIR/system/lib64"
+mkdir -p "$BUILD_DIR/vendor/bin"
+mkdir -p "$BUILD_DIR/vendor/lib64"
+mkdir -p "$BUILD_DIR/apex"
+mkdir -p "$BUILD_DIR/linkerconfig"
+mkdir -p "$BUILD_DIR/data"
 
-# Step 3: Install MaxRegnerOS Core Components into RootFS
+# Step 3: Install MaxRegnerOS Core Components & Hybrid Utilities
 cp maxregneros/init.sh "$BUILD_DIR/init"
 cp maxregneros/init.sh "$BUILD_DIR/maxregneros/init.sh"
 cp maxregneros/maxregneros_shell.sh "$BUILD_DIR/maxregneros/maxregneros_shell.sh"
 cp maxregneros/maxregneros_control.sh "$BUILD_DIR/maxregneros/maxregneros_control.sh"
 cp maxregneros/bin/maxpack "$BUILD_DIR/maxregneros/bin/maxpack"
 cp maxregneros/bin/maxgui "$BUILD_DIR/maxregneros/bin/maxgui"
+cp maxregneros/bin/maxprop.sh "$BUILD_DIR/maxregneros/bin/maxprop.sh"
+cp maxregneros/bin/maxsvc.sh "$BUILD_DIR/maxregneros/bin/maxsvc.sh"
 cp maxregneros/src/init.c "$BUILD_DIR/maxregneros/src/init.c"
 
 # Symlink binaries into PATH
 ln -sf /maxregneros/bin/maxpack "$BUILD_DIR/usr/bin/maxpack"
 ln -sf /maxregneros/bin/maxgui "$BUILD_DIR/usr/bin/maxgui"
 ln -sf /maxregneros/bin/maxgui "$BUILD_DIR/usr/bin/gui"
+ln -sf /maxregneros/bin/maxprop.sh "$BUILD_DIR/usr/bin/maxprop"
+ln -sf /maxregneros/bin/maxsvc.sh "$BUILD_DIR/usr/bin/maxsvc"
 
 chmod +x "$BUILD_DIR/init" "$BUILD_DIR/maxregneros/"*.sh "$BUILD_DIR/maxregneros/bin/"*
 
 # Step 4: Configure OS Release & Hostname
 cat << 'EOF' > "$BUILD_DIR/etc/os-release"
-NAME="MaxRegnerOS Mobile Linux"
+NAME="MaxRegnerOS Merged Mobile Linux"
 VERSION="1.0-ULTRA Cyberhawaii"
 ID=maxregneros
-PRETTY_NAME="MaxRegnerOS Mobile Linux 1.0-ULTRA (hawaiipl ARM64)"
+PRETTY_NAME="MaxRegnerOS Merged Linux + Android 1.0-ULTRA (hawaiipl ARM64)"
 BUILD_ID="20250927"
 HOME_URL="https://github.com/maxregneros"
 EOF
@@ -77,11 +87,11 @@ if command -v mkfs.ext4 >/dev/null 2>&1; then
 fi
 
 # Step 6: Create Compressed Archive
-echo "[MaxRegnerOS Builder] Archiving rootfs structure into compressed tarball..."
+echo "[MaxRegnerOS Builder] Archiving merged rootfs structure into compressed tarball..."
 tar -czf "${OUTPUT_IMG}.tar.gz" -C "$BUILD_DIR" .
 
 echo "=========================================================="
-echo "    SUCCESS: Real ARM64 MaxRegnerOS UserData Image Built!"
+echo "    SUCCESS: Real Merged ARM64 MaxRegnerOS Image Built!"
 echo "    Image File: ${OUTPUT_IMG}"
 echo "    Archive:    ${OUTPUT_IMG}.tar.gz"
 echo "    Flashing Command:"
