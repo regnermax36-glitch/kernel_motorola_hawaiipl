@@ -1,0 +1,6 @@
+id=maxregneros
+name=MaxRegnerOS Mobile Linux
+version=v1.0-ULTRA
+versionCode=100
+author=MaxRegner
+description=Systemless ARM64 Mobile Linux OS distribution layer for Motorola Moto G22 (hawaiipl - MT6765) on Stock Android 12. Includes MaxGUI Touch Desktop, MaxPack Package Manager, CyberShell, and MT6765 Performance Governors.

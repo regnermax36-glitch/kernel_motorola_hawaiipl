@@ -1,0 +1,27 @@
+#!/system/bin/sh
+# MaxRegnerOS Systemless Command Launcher
+# Executes MaxRegnerOS Mobile Linux shell in rootfs chroot container on Moto G22
+
+MAXROOT="/data/adb/maxregneros"
+
+if [ ! -d "$MAXROOT" ]; then
+    echo "[ERROR] MaxRegnerOS rootfs not found in $MAXROOT!"
+    exit 1
+fi
+
+# Ensure pseudo filesystems are mounted
+mkdir -p "$MAXROOT/proc" "$MAXROOT/sys" "$MAXROOT/dev" "$MAXROOT/dev/pts" "$MAXROOT/tmp"
+mountpoint -q "$MAXROOT/proc" || mount -t proc proc "$MAXROOT/proc" 2>/dev/null || true
+mountpoint -q "$MAXROOT/sys" || mount -t sysfs sysfs "$MAXROOT/sys" 2>/dev/null || true
+mountpoint -q "$MAXROOT/dev" || mount -o bind /dev "$MAXROOT/dev" 2>/dev/null || true
+mountpoint -q "$MAXROOT/dev/pts" || mount -o bind /dev/pts "$MAXROOT/dev/pts" 2>/dev/null || true
+
+# Chroot into MaxRegnerOS Mobile Linux
+if [ "$1" = "gui" ] || [ "$1" = "maxgui" ]; then
+    exec chroot "$MAXROOT" /bin/sh /maxregneros/bin/maxgui
+elif [ "$1" = "pack" ] || [ "$1" = "maxpack" ]; then
+    shift
+    exec chroot "$MAXROOT" /bin/sh /maxregneros/bin/maxpack "$@"
+else
+    exec chroot "$MAXROOT" /bin/sh /maxregneros/maxregneros_shell.sh
+fi
