@@ -1,5 +1,5 @@
 #!/bin/sh
-# MaxRegnerOS Hybrid Boot Orchestrator & Userspace Init
+# MaxRegnerOS Hybrid Boot Orchestrator & PivotRoot Init
 # Target: Motorola Moto G22 (hawaiipl - MediaTek MT6765 ARM64)
 # Merged Linux & Android Environment Architecture
 
@@ -20,12 +20,12 @@ echo "      |  |  | |  |  |   |\    |___ |__| | \| |____ |__| "
 echo "=========================================================="
 echo "    MaxRegnerOS Merged Linux + Android v${OS_VERSION}"
 echo "    Target: ${DEVICE} [MediaTek MT6765 / Helio G37]"
-echo "    Kernel: Stock Moto G22 Kernel (Direct UserData Boot)"
+echo "    Kernel: Stock Moto G22 Kernel (UserData Boot Active)"
 echo "=========================================================="
 
-# Mount Essential Pseudo Filesystems
-echo "[MaxRegnerOS] Mounting core pseudo-filesystems & Android sockets..."
-mkdir -p /proc /sys /dev /dev/pts /dev/socket /tmp /mnt /data /system /vendor /apex /linkerconfig /maxregneros/bin
+# Mount Essential Pseudo Filesystems & HAL Overlays
+echo "[MaxRegnerOS] Mounting core pseudo-filesystems & Android HAL overlays..."
+mkdir -p /proc /sys /dev /dev/pts /dev/socket /dev/binderfs /tmp /mnt /data /system /vendor /apex /linkerconfig /maxregneros/bin
 
 if ! mountpoint -q /proc 2>/dev/null; then
     mount -t proc proc /proc 2>/dev/null || true
@@ -51,7 +51,7 @@ fi
 # Set hostname
 hostname "maxregneros" 2>/dev/null || true
 
-# Initialize MaxRegnerOS Hardware Controllers & Governors
+# Initialize MaxRegnerOS Hardware Governors
 if [ -f /maxregneros/maxregneros_control.sh ]; then
     echo "[MaxRegnerOS] Initializing MT6765 hardware drivers & governors..."
     /bin/sh /maxregneros/maxregneros_control.sh init 2>/dev/null || true

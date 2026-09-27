@@ -9,6 +9,16 @@ BLUE='\033[0;34m'
 BOLD='\033[1m'
 RESET='\033[0m'
 
+get_display_info() {
+    if [ -d /sys/class/graphics/fb0 ]; then
+        echo "1600x720 (Framebuffer fb0 - Moto G22 IPS LCD)"
+    elif [ -e /dev/dri/card0 ]; then
+        echo "DRM/KMS /dev/dri/card0 (90Hz HD+ IPS LCD)"
+    else
+        echo "1600x720 90Hz HD+ IPS LCD"
+    fi
+}
+
 get_mem_info() {
     if [ -f /proc/meminfo ]; then
         grep MemTotal /proc/meminfo | awk '{print $2 " " $3}'
@@ -47,14 +57,16 @@ render_ui() {
     printf " |                     MAXREGNEROS MOBILE DESKTOP                   |\n"
     printf " +------------------------------------------------------------------+\n"
     printf " | Device: Motorola Moto G22 (hawaiipl - MediaTek MT6765)           |\n"
-    printf " | Kernel: $(uname -r 2>/dev/null || echo 'Linux 4.19.191 Stock')                         |\n"
+    printf " | Display: $(get_display_info)                                     |\n"
     printf " | Total Memory: $(get_mem_info)                                     |\n"
     printf " +------------------------------------------------------------------+\n"
     printf " | [1] System Diagnostics & Thermal Sensors                         |\n"
     printf " | [2] CyberBoost Performance Mode                                  |\n"
     printf " | [3] MaxPack Package Manager                                      |\n"
-    printf " | [4] Open Interactive Terminal Shell                              |\n"
-    printf " | [5] Exit MaxGUI                                                  |\n"
+    printf " | [4] Android System Property Bridge (MaxProp)                     |\n"
+    printf " | [5] Android Service Status (MaxSvc)                              |\n"
+    printf " | [6] Open Interactive Terminal Shell                              |\n"
+    printf " | [7] Exit MaxGUI                                                  |\n"
     printf " +------------------------------------------------------------------+\n"
     printf "${RESET}\n"
 }
@@ -92,9 +104,27 @@ while true; do
             read DUMMY
             ;;
         4)
-            break
+            if [ -f /maxregneros/bin/maxprop.sh ]; then
+                /bin/sh /maxregneros/bin/maxprop.sh ro.product.model
+            elif [ -f maxregneros/bin/maxprop.sh ]; then
+                /bin/sh maxregneros/bin/maxprop.sh ro.product.model
+            fi
+            printf "\nPress Enter to return..."
+            read DUMMY
             ;;
         5)
+            if [ -f /maxregneros/bin/maxsvc.sh ]; then
+                /bin/sh /maxregneros/bin/maxsvc.sh list
+            elif [ -f maxregneros/bin/maxsvc.sh ]; then
+                /bin/sh maxregneros/bin/maxsvc.sh list
+            fi
+            printf "\nPress Enter to return..."
+            read DUMMY
+            ;;
+        6)
+            break
+            ;;
+        7)
             echo "Exiting MaxGUI."
             break
             ;;
