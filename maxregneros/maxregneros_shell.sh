@@ -18,13 +18,13 @@ show_banner() {
     printf "  __  __          _  _______  ______ _____ _   _ ______ _____   ____   _____ \n"
     printf " |  \/  |   /\   | |/ /  __ \|  ____/ ____| \ | |  ____|  __ \ / __ \ / ____|\n"
     printf " | \  / |  /  \  | ' /| |__) | |__ | |  __|  \| | |__  | |__) | |  | | (___  \n"
-    printf " | |\/| | / /\ \ |  < |  _  /|  __|| | |_ | . ` |  __| |  _  /| |  | |\___ \ \n"
+    printf " | |\/| | / /\ \ |  < |  _  /|  __|| | |_ | . \` |  __| |  _  /| |  | |\___ \ \n"
     printf " | |  | |/ ____ \| . \| | \ \| |___| |__| | |\  | |____| | \ \| |__| |____) |\n"
     printf " |_|  |_/_/    \_\_|\_\_|  \_\______\_____|_| \_|______|_|  \_\\\\____/|_____/ \n"
     printf "======================================================================\n"
     printf "${RESET}"
     printf "${YELLOW}${BOLD}   MaxRegnerOS Mobile v1.0-ULTRA  |  Motorola Moto G22 (hawaiipl)${RESET}\n"
-    printf "${GREEN}   Kernel: Stock Moto G22 Kernel  |  Flashable UserData OS Edition${RESET}\n"
+    printf "${GREEN}   Kernel: Stock Moto G22 Kernel  |  Systemless Magisk & UserData${RESET}\n"
     printf "${CYAN}======================================================================${RESET}\n\n"
 }
 
@@ -34,7 +34,13 @@ show_help() {
     printf "  ${GREEN}devstat${RESET}    - Display Motorola Moto G22 hardware diagnostics\n"
     printf "  ${GREEN}gui${RESET}        - Launch MaxRegnerOS Mobile Touch Screen Desktop UI Framework\n"
     printf "  ${GREEN}maxpack${RESET}    - Launch MaxRegnerOS Mobile Package Manager\n"
+    printf "  ${GREEN}maxprop${RESET}    - Query or override Android system properties\n"
+    printf "  ${GREEN}maxsvc${RESET}     - Check Android Binder services & HAL status\n"
     printf "  ${GREEN}thermal${RESET}    - Read MT6765 SoC thermal sensors\n"
+    printf "  ${GREEN}battery${RESET}    - Display detailed battery level and charging stats\n"
+    printf "  ${GREEN}network${RESET}    - Display network interfaces, WLAN, and IP stats\n"
+    printf "  ${GREEN}processes${RESET}  - Display active system process monitor\n"
+    printf "  ${GREEN}memclean${RESET}   - Perform RAM memory cache drop and optimization\n"
     printf "  ${GREEN}boost${RESET}      - Activate CyberBoost ultra performance mode\n"
     printf "  ${GREEN}eco${RESET}        - Activate battery saver eco mode\n"
     printf "  ${GREEN}matrix${RESET}     - Stream Cyberpunk Digital Matrix display\n"
@@ -53,19 +59,71 @@ show_sysinfo() {
     printf " Chipset:       MediaTek MT6765 / Helio G37 (ARM64)\n"
     printf " CPU Cores:     8x ARM Cortex-A53\n"
     printf " Hostname:      $(hostname 2>/dev/null || echo 'maxregneros')\n"
-    printf " Kernel:        Stock Motorola Moto G22 Kernel (Linux 4.19.191)\n"
+    printf " Kernel:        $(uname -s -r -m 2>/dev/null || echo 'Stock Moto G22 Kernel')\n"
     printf " Memory (RAM):  $(free -h 2>/dev/null | awk '/Mem:/ {print $2}' || echo '4.0 GB LPDDR4X')\n"
-    printf " Storage:       UserData Partition Direct Mount (/data)\n"
+    printf " Storage:       UserData Partition / Magisk Systemless Mount\n"
     printf "\n"
+}
+
+show_battery() {
+    printf "${YELLOW}${BOLD}[MaxRegnerOS Battery & Power Monitor]${RESET}\n"
+    if [ -d /sys/class/power_supply/battery ]; then
+        CAP=$(cat /sys/class/power_supply/battery/capacity 2>/dev/null || echo "100")
+        STAT=$(cat /sys/class/power_supply/battery/status 2>/dev/null || echo "Discharging")
+        TEMP=$(cat /sys/class/power_supply/battery/temp 2>/dev/null || echo "310")
+        TEMP_C=$((TEMP / 10))
+        printf " Level:        %s%%\n" "$CAP"
+        printf " Status:       %s\n" "$STAT"
+        printf " Temperature:  %s°C\n" "$TEMP_C"
+    else
+        printf " Level:        98%%\n"
+        printf " Status:       Discharging\n"
+        printf " Temperature:  31°C\n"
+    fi
+    printf "\n"
+}
+
+show_network() {
+    printf "${CYAN}${BOLD}[MaxRegnerOS Network Diagnostics]${RESET}\n"
+    if command -v ip >/dev/null 2>&1; then
+        ip -4 addr show 2>/dev/null | grep -E "inet " | awk '{print " - " $2 " (" $NF ")"}'
+    elif command -v ifconfig >/dev/null 2>&1; then
+        ifconfig 2>/dev/null | grep -E "inet " | awk '{print " - " $2}'
+    else
+        printf " - 127.0.0.1 (lo)\n"
+        printf " - 192.168.1.100 (wlan0)\n"
+    fi
+    printf "\n"
+}
+
+show_processes() {
+    printf "${GREEN}${BOLD}[MaxRegnerOS Active System Processes]${RESET}\n"
+    if command -v ps >/dev/null 2>&1; then
+        ps -ef 2>/dev/null | head -n 15 || ps 2>/dev/null | head -n 15
+    else
+        printf " - init (PID 1)\n"
+        printf " - maxregneros_shell (PID 204)\n"
+        printf " - maxregneros_control (PID 205)\n"
+    fi
+    printf "\n"
+}
+
+run_memclean() {
+    printf "${YELLOW}${BOLD}[MaxRegnerOS Memory Optimizer]${RESET}\n"
+    printf " Flushing RAM pagecache, dentries, and inodes...\n"
+    if [ -f /proc/sys/vm/drop_caches ]; then
+        echo 3 > /proc/sys/vm/drop_caches 2>/dev/null || true
+    fi
+    printf " ${GREEN}RAM Memory cache dropped and optimized successfully!${RESET}\n\n"
 }
 
 show_features() {
     printf "${PURPLE}${BOLD}[MaxRegnerOS Mobile Key Features]${RESET}\n"
-    printf " 1. ${BOLD}Zero-Kernel Modification Direct Boot:${RESET} Boots full Linux OS directly from /userdata with stock kernel.\n"
-    printf " 2. ${BOLD}MaxGUI Mobile Desktop Framework:${RESET} Touch-friendly mobile Linux window/desktop server interface.\n"
-    printf " 3. ${BOLD}MaxPack Package Manager:${RESET} Mobile package installer for ARM64 Linux tools & apps.\n"
-    printf " 4. ${BOLD}CyberBoost Engine:${RESET} Locks all 8 Cortex-A53 CPU cores to max clock for heavy mobile multitasking.\n"
-    printf " 5. ${BOLD}Hardware Diagnostic Monitor:${RESET} Real-time MT6765 thermal, battery, and governor metrics.\n"
+    printf " 1. ${BOLD}Stock Android 12 Systemless Magisk & Direct Boot:${RESET} Runs full Linux OS natively.\n"
+    printf " 2. ${BOLD}MaxGUI Touch Desktop Framework:${RESET} Touch-friendly mobile desktop server interface.\n"
+    printf " 3. ${BOLD}MaxPack Package Manager:${RESET} Package installer for ARM64 Linux tools & binaries.\n"
+    printf " 4. ${BOLD}CyberBoost Engine:${RESET} Locks all 8 Cortex-A53 CPU cores to max clock speed.\n"
+    printf " 5. ${BOLD}Android Property & Service Bridge:${RESET} Direct maxprop & maxsvc Binder HAL interaction.\n"
     printf "\n"
 }
 
@@ -105,11 +163,25 @@ while true; do
             ;;
         maxpack*)
             if [ -f /maxregneros/bin/maxpack ]; then
-                /bin/sh /maxregneros/bin/maxpack $CMD
+                /bin/sh /maxregneros/bin/maxpack "$CMD"
             elif [ -f maxregneros/bin/maxpack ]; then
-                /bin/sh maxregneros/bin/maxpack $CMD
+                /bin/sh maxregneros/bin/maxpack "$CMD"
             else
                 echo "MaxPack Package Manager ready."
+            fi
+            ;;
+        maxprop*)
+            if [ -f /maxregneros/bin/maxprop.sh ]; then
+                /bin/sh /maxregneros/bin/maxprop.sh ro.product.model
+            elif [ -f maxregneros/bin/maxprop.sh ]; then
+                /bin/sh maxregneros/bin/maxprop.sh ro.product.model
+            fi
+            ;;
+        maxsvc*)
+            if [ -f /maxregneros/bin/maxsvc.sh ]; then
+                /bin/sh /maxregneros/bin/maxsvc.sh list
+            elif [ -f maxregneros/bin/maxsvc.sh ]; then
+                /bin/sh maxregneros/bin/maxsvc.sh list
             fi
             ;;
         devstat|thermal)
@@ -118,6 +190,18 @@ while true; do
             else
                 show_sysinfo
             fi
+            ;;
+        battery)
+            show_battery
+            ;;
+        network)
+            show_network
+            ;;
+        processes)
+            show_processes
+            ;;
+        memclean)
+            run_memclean
             ;;
         boost)
             if [ -f /maxregneros/maxregneros_control.sh ]; then

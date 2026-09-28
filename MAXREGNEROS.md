@@ -13,7 +13,7 @@ It runs **100% natively on Stock Android 12 Firmware and Stock boot.img** as a M
 
 ## 📦 Direct Magisk Module Zip Download Link (Uploaded to temp.sh)
 
-- **Magisk Module Zip Direct Download Link:** [https://temp.sh/DInVg/maxregneros_magisk_v1.0.zip](https://temp.sh/DInVg/maxregneros_magisk_v1.0.zip)
+- **Magisk Module Zip Direct Download Link:** [https://temp.sh/jEINv/maxregneros_magisk_v1.0.zip](https://temp.sh/jEINv/maxregneros_magisk_v1.0.zip)
 - **Module Packager Tooling:** `./tools/build_magisk_module.sh` builds `maxregneros_magisk_v1.0.zip` containing the full Alpine ARM64 Linux rootfs and systemless launchers.
 
 ---
@@ -50,13 +50,16 @@ It runs **100% natively on Stock Android 12 Firmware and Stock boot.img** as a M
    - **Eco Mode (`eco`):** Powersave governor activation for extended battery runtime.
    - **Balanced Mode (`balanced`):** Schedutil governor activation.
 
+9. **Extended CyberShell Suite (`maxregneros_shell.sh`):**
+   - Added new utilities: `battery`, `network`, `processes`, `memclean`, `sysinfo`, `devstat`, `thermal`, `boost`, `eco`, `matrix`, `theme`, `features`.
+
 ---
 
 ## ⚡ Flashing & Installation Guide
 
 1. **Download Magisk Module Zip:**
    ```bash
-   curl -L "https://temp.sh/DInVg/maxregneros_magisk_v1.0.zip" -o maxregneros_magisk_v1.0.zip
+   curl -L "https://temp.sh/jEINv/maxregneros_magisk_v1.0.zip" -o maxregneros_magisk_v1.0.zip
    ```
 
 2. **Open Magisk App on Motorola Moto G22:**
@@ -90,6 +93,10 @@ It runs **100% natively on Stock Android 12 Firmware and Stock boot.img** as a M
 | `maxpack` | Launches MaxPack Mobile Package Manager (`install`, `remove`, `list`, `update`) |
 | `maxprop` | Queries/sets Android & Linux system properties |
 | `maxsvc` | Lists and checks status of Binder services & daemons |
+| `battery` | Displays detailed battery level, status, and temperature |
+| `network` | Displays active network interfaces, WLAN, and IP stats |
+| `processes` | Displays active system process monitor |
+| `memclean` | Flushes RAM pagecache, dentries, and inodes |
 | `sysinfo` | Displays OS build, CPU cores, RAM, and architecture breakdown |
 | `devstat` | Displays Motorola Moto G22 hardware diagnostics & CPU governors |
 | `thermal` | Reads MediaTek MT6765 SoC thermal sensors |
