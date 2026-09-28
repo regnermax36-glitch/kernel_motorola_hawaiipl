@@ -1,28 +1,29 @@
-# MaxRegnerOS v1.0-ULTRA Systemless Magisk Module
-### Next-Gen ARM64 Mobile Linux OS for Motorola Moto G22 (`hawaiipl`)
+# MaxRegnerOS v1.0-ULTRA Systemless SystemUI Transformation Magisk Module
+### Next-Gen ARM64 Mobile Linux OS & UI Transformation for Motorola Moto G22 (`hawaiipl`)
 **SoC:** MediaTek MT6765 / Helio G37 | **Arch:** ARM64 (aarch64) | **Firmware Mode:** Stock Android 12 Firmware & Stock boot.img | **Install Format:** Systemless Magisk Module (`.zip`)
 
 ---
 
 ## 🚀 Overview
 
-**MaxRegnerOS Mobile Linux** is a systemless ARM64 (`aarch64`) operating system distribution layer for the **Motorola Moto G22** (`hawaiipl`).
-It runs **100% natively on Stock Android 12 Firmware and Stock boot.img** as a Magisk Module without requiring custom kernels, custom recoveries, or reformatting `/data`.
+**MaxRegnerOS Mobile Linux** is a systemless ARM64 (`aarch64`) operating system & SystemUI transformation layer for the **Motorola Moto G22** (`hawaiipl`).
+It runs **100% natively on Stock Android 12 Firmware and Stock boot.img** as a Magisk Module, replacing Android system properties and SystemUI identity with MaxRegnerOS Cyber Mobile Linux without requiring custom kernels, custom recoveries, or reformatting `/data`.
 
 ---
 
 ## 📦 Direct Magisk Module Zip Download Link (Uploaded to temp.sh)
 
-- **Magisk Module Zip Direct Download Link:** [https://temp.sh/iESPk/maxregneros_magisk_v1.0.zip](https://temp.sh/iESPk/maxregneros_magisk_v1.0.zip)
+- **Magisk Module Zip Direct Download Link:** [https://temp.sh/DInVg/maxregneros_magisk_v1.0.zip](https://temp.sh/DInVg/maxregneros_magisk_v1.0.zip)
 - **Module Packager Tooling:** `./tools/build_magisk_module.sh` builds `maxregneros_magisk_v1.0.zip` containing the full Alpine ARM64 Linux rootfs and systemless launchers.
 
 ---
 
 ## 🔥 Key Features & Capabilities
 
-1. **Systemless Magisk Installation (`maxregneros_magisk_v1.0.zip`):**
+1. **Systemless SystemUI & Framework Transformation (`maxregneros_magisk_v1.0.zip`):**
+   - Overrides Android build properties (`ro.product.model`, `ro.product.brand`, `ro.build.display.id`) with `MaxRegnerOS CyberPhone (hawaiipl)`.
    - Flashable directly via Magisk App -> Modules -> Install from Storage.
-   - Zero recovery/fastboot wipe needed; preserves stock Android 12 completely.
+   - Zero recovery/fastboot wipe needed; preserves stock Android 12 security while completely transforming UI identity.
 
 2. **Systemless Command Launchers (`maxregneros`, `maxgui`, `maxpack`):**
    - Automatically installs `/system/bin/maxregneros`, `/system/bin/maxgui`, and `/system/bin/maxpack` in PATH.
@@ -55,7 +56,7 @@ It runs **100% natively on Stock Android 12 Firmware and Stock boot.img** as a M
 
 1. **Download Magisk Module Zip:**
    ```bash
-   curl -L "https://temp.sh/iESPk/maxregneros_magisk_v1.0.zip" -o maxregneros_magisk_v1.0.zip
+   curl -L "https://temp.sh/DInVg/maxregneros_magisk_v1.0.zip" -o maxregneros_magisk_v1.0.zip
    ```
 
 2. **Open Magisk App on Motorola Moto G22:**

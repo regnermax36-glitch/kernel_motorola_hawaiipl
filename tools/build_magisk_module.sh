@@ -30,6 +30,8 @@ tar -xzf "$ALPINE_TAR" -C "$BUILD_DIR/ROOTFS"
 mkdir -p "$BUILD_DIR/ROOTFS/maxregneros/bin"
 mkdir -p "$BUILD_DIR/ROOTFS/maxregneros/src"
 mkdir -p "$BUILD_DIR/ROOTFS/usr/bin"
+mkdir -p "$BUILD_DIR/ROOTFS/usr/libexec"
+mkdir -p "$BUILD_DIR/ROOTFS/etc/maxregneros"
 
 cp maxregneros/init.sh "$BUILD_DIR/ROOTFS/init"
 cp maxregneros/init.sh "$BUILD_DIR/ROOTFS/maxregneros/init.sh"
