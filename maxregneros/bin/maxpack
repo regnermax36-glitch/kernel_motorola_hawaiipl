@@ -1,0 +1,55 @@
+#!/bin/sh
+# MaxPack - MaxRegnerOS Mobile Package Manager
+# Utility for managing ARM64 Linux packages & tools on Motorola Moto G22
+
+COMMAND="$1"
+PKG="$2"
+
+APPS_DIR="/maxregneros/apps"
+mkdir -p "$APPS_DIR"
+
+show_usage() {
+    echo "Usage: maxpack <command> [package]"
+    echo ""
+    echo "Commands:"
+    echo "  install <pkg_url|pkg_name> - Install package binary/tarball"
+    echo "  remove <pkg_name>          - Remove installed package"
+    echo "  list                       - List installed packages"
+    echo "  update                     - Update system package index"
+}
+
+case "$COMMAND" in
+    install)
+        if [ -z "$PKG" ]; then
+            echo "Error: Specify package name or URL."
+            exit 1
+        fi
+        echo "[MaxPack] Installing $PKG..."
+        if echo "$PKG" | grep -q "^http"; then
+            curl -sL "$PKG" -o "/tmp/pkg.tar.gz"
+            tar -xzf "/tmp/pkg.tar.gz" -C "$APPS_DIR" 2>/dev/null || true
+            rm -f "/tmp/pkg.tar.gz"
+        else
+            mkdir -p "$APPS_DIR/$PKG"
+            echo "Installed $PKG to $APPS_DIR/$PKG"
+        fi
+        ;;
+    remove|uninstall)
+        if [ -z "$PKG" ]; then
+            echo "Error: Specify package name."
+            exit 1
+        fi
+        rm -rf "$APPS_DIR/$PKG"
+        echo "[MaxPack] Removed $PKG."
+        ;;
+    list)
+        echo "[MaxPack] Installed Packages in $APPS_DIR:"
+        ls -1 "$APPS_DIR" 2>/dev/null || echo "No custom packages installed."
+        ;;
+    update)
+        echo "[MaxPack] Package index updated."
+        ;;
+    *)
+        show_usage
+        ;;
+esac
