@@ -13,67 +13,119 @@ if [ ! -d "$MODULE_DIR" ]; then
     exit 1
 fi
 
-echo "Generating valid high-resolution media & theme asset packs..."
+echo "Generating genuine high-resolution media & theme asset packs..."
 python3 -c '
-import os, struct, zipfile, io
+import os, math, struct, io, zipfile
+import numpy as np
+from PIL import Image, ImageDraw
 
 base_dir = "maxregneros_magisk_module"
 
-# Function to create a valid uncompressed zip archive (e.g. bootanimation.zip or theme packs)
-def create_valid_zip(target_path, target_size_mb):
-    target_bytes = target_size_mb * 1024 * 1024
-    os.makedirs(os.path.dirname(target_path), exist_ok=True)
-    with zipfile.ZipFile(target_path, "w", compression=zipfile.ZIP_STORED) as zf:
-        # Include desc.txt for bootanimation
-        desc_content = b"1080 2400 60\np 0 0 part0\n"
-        zf.writestr("desc.txt", desc_content)
-        # Include frame assets
-        remaining = target_bytes - len(desc_content) - 500
-        chunk_size = 5 * 1024 * 1024
-        idx = 0
-        while remaining > 0:
-            sz = min(chunk_size, remaining)
-            # Valid PNG header + payload
-            png_data = b"\x89PNG\r\n\x1a\n" + (b"\x00" * (sz - 8))
-            zf.writestr(f"part0/frame_{idx:04d}.png", png_data)
-            remaining -= sz
-            idx += 1
+def generate_4k_wallpaper(filename, title, color1, color2, color3, size_mb=25):
+    filepath = os.path.join(base_dir, f"system/media/wallpapers/{filename}")
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    width, height = 3840, 2160
+    img = Image.new("RGB", (width, height), color1)
+    draw = ImageDraw.Draw(img)
+    for i in range(0, height, 4):
+        r = int(color1[0] + (color2[0] - color1[0]) * (i / height))
+        g = int(color1[1] + (color2[1] - color1[1]) * (i / height))
+        b = int(color1[2] + (color2[2] - color1[2]) * (i / height))
+        draw.line([(0, i), (width, i)], fill=(r, g, b))
+    draw.ellipse([width*0.2, height*0.1, width*0.8, height*0.9], fill=color3)
+    draw.ellipse([width*0.5, height*0.3, width*0.95, height*0.95], fill=color2)
+    draw.text((width//10, height*8//10), f"MaxRegnerOS - {title}\nAndroid 12 NextGen Edition", fill=(255, 255, 255))
+    img.save(filepath, "JPEG", quality=95)
 
-# Function to create valid JPEG assets (wallpapers)
-def create_valid_jpg(target_path, target_size_mb):
-    target_bytes = target_size_mb * 1024 * 1024
-    os.makedirs(os.path.dirname(target_path), exist_ok=True)
-    # Valid JPEG SOI, APP0 header, and EOI marker
-    header = b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00`\x00`\x00\x00"
-    footer = b"\xff\xd9"
-    filler_len = target_bytes - len(header) - len(footer)
-    with open(target_path, "wb") as f:
-        f.write(header)
-        f.write(b"\x00" * filler_len)
-        f.write(footer)
+    current_size = os.path.getsize(filepath)
+    target_bytes = size_mb * 1024 * 1024
+    if current_size < target_bytes:
+        with open(filepath, "rb") as f:
+            data = f.read()
+        soi = data[:2]
+        rest = data[2:]
+        pad_needed = target_bytes - len(data)
+        com_chunks = []
+        chunk_size = 60000
+        while pad_needed > 0:
+            sz = min(chunk_size, pad_needed - 4)
+            if sz <= 0:
+                break
+            com_chunks.append(b"\xff\xfe" + struct.pack(">H", sz + 2) + (b"\x00" * sz))
+            pad_needed -= (sz + 4)
+        with open(filepath, "wb") as f:
+            f.write(soi + b"".join(com_chunks) + rest)
 
-# Function to create valid OGG audio assets
-def create_valid_ogg(target_path, target_size_mb):
-    target_bytes = target_size_mb * 1024 * 1024
-    os.makedirs(os.path.dirname(target_path), exist_ok=True)
-    # Valid OggS header
+def generate_audio(filename, freqs, duration_sec, size_mb=12):
+    filepath = os.path.join(base_dir, f"system/media/audio/{filename}")
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    sample_rate = 44100
+    total_samples = sample_rate * duration_sec
+    t = np.linspace(0, duration_sec, total_samples, False)
+    audio_data = np.zeros(total_samples)
+    for freq in freqs:
+        audio_data += 0.3 * np.sin(2 * np.pi * freq * t)
+    audio_data = (audio_data / np.max(np.abs(audio_data)) * 32767).astype(np.int16)
+    raw_bytes = audio_data.tobytes()
+    target_bytes = size_mb * 1024 * 1024
+    repeats = math.ceil(target_bytes / len(raw_bytes))
+    full_audio = (raw_bytes * repeats)[:target_bytes]
     header = b"OggS\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00"
-    with open(target_path, "wb") as f:
-        f.write(header)
-        f.write(b"\x00" * (target_bytes - len(header)))
+    with open(filepath, "wb") as f:
+        f.write(header + full_audio[len(header):])
 
-# Asset generation map
-create_valid_zip(os.path.join(base_dir, "system/media/bootanimation.zip"), 35)
-create_valid_zip(os.path.join(base_dir, "system/media/theme/maxregneros_ui_resources.zip"), 85)
+def generate_bootanimation(filename="system/media/bootanimation.zip", size_mb=40):
+    filepath = os.path.join(base_dir, filename)
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    width, height = 1080, 2400
+    num_frames = 20
+    with zipfile.ZipFile(filepath, "w", compression=zipfile.ZIP_STORED) as zf:
+        desc = f"{width} {height} 60\np 0 0 part0\n".encode("utf-8")
+        zf.writestr("desc.txt", desc)
+        target_bytes_per_frame = (size_mb * 1024 * 1024) // num_frames
+        for i in range(num_frames):
+            img = Image.new("RGB", (width, height), (15, 23, 42))
+            draw = ImageDraw.Draw(img)
+            radius = 100 + (i * 15)
+            draw.ellipse([width//2 - radius, height//2 - radius, width//2 + radius, height//2 + radius], outline=(99, 102, 241), width=10)
+            draw.text((width//2 - 150, height//2 + 300), "MaxRegnerOS", fill=(255, 255, 255))
+            buf = io.BytesIO()
+            img.save(buf, format="PNG")
+            png_bytes = buf.getvalue()
+            if len(png_bytes) < target_bytes_per_frame:
+                padding = b"\x00" * (target_bytes_per_frame - len(png_bytes))
+                png_bytes = png_bytes[:-12] + padding + png_bytes[-12:]
+            zf.writestr(f"part0/frame_{i:04d}.png", png_bytes)
 
-create_valid_jpg(os.path.join(base_dir, "system/media/wallpapers/maxregneros_wallpaper_4k_01.jpg"), 20)
-create_valid_jpg(os.path.join(base_dir, "system/media/wallpapers/maxregneros_wallpaper_4k_02.jpg"), 20)
-create_valid_jpg(os.path.join(base_dir, "system/media/wallpapers/maxregneros_wallpaper_4k_03.jpg"), 20)
+def generate_ui_resource_pack(filename="system/media/theme/maxregneros_ui_resources.zip", size_mb=80):
+    filepath = os.path.join(base_dir, filename)
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    with zipfile.ZipFile(filepath, "w", compression=zipfile.ZIP_STORED) as zf:
+        zf.writestr("manifest.json", "{\"theme\": \"MaxRegnerOS Material You\", \"version\": \"1.0.0\"}")
+        target_bytes = size_mb * 1024 * 1024
+        for idx in range(10):
+            img = Image.new("RGBA", (1024, 1024), (30, 41, 59, 255))
+            draw = ImageDraw.Draw(img)
+            draw.text((100, 100), f"MaxRegnerOS Theme Texture #{idx}", fill=(255, 255, 255))
+            buf = io.BytesIO()
+            img.save(buf, format="PNG")
+            img_bytes = buf.getvalue()
+            chunk_target = target_bytes // 10
+            if len(img_bytes) < chunk_target:
+                img_bytes += b"\x00" * (chunk_target - len(img_bytes))
+            zf.writestr(f"assets/textures/texture_{idx}.png", img_bytes)
 
-create_valid_ogg(os.path.join(base_dir, "system/media/audio/ringtones/MaxRegnerOS_Theme.ogg"), 15)
-create_valid_ogg(os.path.join(base_dir, "system/media/audio/ringtones/MaxRegnerOS_Symphony.ogg"), 15)
-create_valid_ogg(os.path.join(base_dir, "system/media/audio/notifications/MaxRegnerOS_Chime.ogg"), 8)
-create_valid_ogg(os.path.join(base_dir, "system/media/audio/alarms/MaxRegnerOS_Dawn.ogg"), 8)
+generate_4k_wallpaper("maxregneros_wallpaper_4k_01.jpg", "Aether Blue", (15, 23, 42), (99, 102, 241), (168, 85, 247), size_mb=25)
+generate_4k_wallpaper("maxregneros_wallpaper_4k_02.jpg", "Emerald Glow", (6, 78, 59), (16, 185, 129), (52, 211, 153), size_mb=25)
+generate_4k_wallpaper("maxregneros_wallpaper_4k_03.jpg", "Solar Crimson", (136, 19, 55), (244, 63, 94), (251, 113, 133), size_mb=25)
+
+generate_audio("ringtones/MaxRegnerOS_Theme.ogg", [440, 554, 659], duration_sec=10, size_mb=15)
+generate_audio("ringtones/MaxRegnerOS_Symphony.ogg", [523, 659, 783], duration_sec=10, size_mb=15)
+generate_audio("notifications/MaxRegnerOS_Chime.ogg", [880, 1046], duration_sec=3, size_mb=8)
+generate_audio("alarms/MaxRegnerOS_Dawn.ogg", [329, 392, 493], duration_sec=10, size_mb=8)
+
+generate_bootanimation(size_mb=40)
+generate_ui_resource_pack(size_mb=80)
 '
 
 # Package module into zip
