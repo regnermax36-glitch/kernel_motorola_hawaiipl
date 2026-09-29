@@ -1,0 +1,8 @@
+# Ignore large generated binary assets and zip artifacts
+*.bin
+*.zip
+*.apk
+*.ttf
+*.ogg
+*.jpg
+MaxRegnerOS-*.zip
