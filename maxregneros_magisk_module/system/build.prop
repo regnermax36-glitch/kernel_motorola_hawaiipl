@@ -1,0 +1,19 @@
+# MaxRegnerOS System Properties Patch - Android 12 Stock Transformation
+ro.maxregneros.name=MaxRegnerOS
+ro.maxregneros.version=12.0.0
+ro.maxregneros.codename=RegnerPrime
+ro.maxregneros.ui.type=NextGen
+ro.maxregneros.ui.blur=true
+ro.maxregneros.ui.material_you=true
+ro.maxregneros.ui.rounded_corners=16dp
+ro.maxregneros.status_bar.style=center_clock_dual_row
+ro.maxregneros.control_center.style=max_tiles_blur
+
+# Performance and UI Render Optimizations
+ro.sys.fw.bg_apps_limit=32
+persist.sys.use_dithering=1
+persist.sys.ui.hw=true
+ro.sf.lcd_density=400
+ro.config.max_starting_bg_arts=30
+debug.performance.tuning=1
+video.accelerate.hw=1

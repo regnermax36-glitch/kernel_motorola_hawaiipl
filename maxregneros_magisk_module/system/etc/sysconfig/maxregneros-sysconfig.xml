@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+    <!-- MaxRegnerOS System Service Whitelist & Allowlist -->
+    <allow-in-power-save package="com.maxregneros.systemui" />
+    <allow-in-power-save package="com.maxregneros.theme.engine" />
+    <allow-in-bg-location package="com.maxregneros.systemui" />
+    <system-user-whitelisted-app package="com.maxregneros.systemui" />
+</config>
